@@ -1,8 +1,52 @@
 # TypeScript 筆記 - 淺談TS裡的Type 
 
+## 目錄
+
+- [TypeScript 筆記 - 淺談TS裡的Type](#typescript-%e7%ad%86%e8%a8%98---%e6%b7%ba%e8%ab%87ts%e8%a3%a1%e7%9a%84type)
+  - [目錄](#%e7%9b%ae%e9%8c%84)
+  - [Why TypeScript](#why-typescript)
+  - [在TypeScript裡的型別: Type](#%e5%9c%a8typescript%e8%a3%a1%e7%9a%84%e5%9e%8b%e5%88%a5-type)
+  - [TypeScript的基本型別](#typescript%e7%9a%84%e5%9f%ba%e6%9c%ac%e5%9e%8b%e5%88%a5)
+    - [Number](#number)
+    - [String](#string)
+    - [Boolean](#boolean)
+    - [Enums](#enums)
+    - [Void](#void)
+    - [Null 和 Undefined](#null-%e5%92%8c-undefined)
+    - [Any](#any)
+    - [Array](#array)
+    - [Object](#object)
+    - [Tuple](#tuple)
+    - [Never](#never)
+  - [Interfaces - DuckTyping鴨子在叫](#interfaces---ducktyping%e9%b4%a8%e5%ad%90%e5%9c%a8%e5%8f%ab)
+    - [DuckTyping在叫了...](#ducktyping%e5%9c%a8%e5%8f%ab%e4%ba%86)
+      - [Type Assertion](#type-assertion)
+      - [UnionSet](#unionset)
+    - [函式裡的Interfaces](#%e5%87%bd%e5%bc%8f%e8%a3%a1%e7%9a%84interfaces)
+  - [TS常遇到的坑](#ts%e5%b8%b8%e9%81%87%e5%88%b0%e7%9a%84%e5%9d%91)
+    - [TypeAssertion不能亂用](#typeassertion%e4%b8%8d%e8%83%bd%e4%ba%82%e7%94%a8)
+    - [關於預設值這件事](#%e9%97%9c%e6%96%bc%e9%a0%90%e8%a8%ad%e5%80%bc%e9%80%99%e4%bb%b6%e4%ba%8b)
+    - [你以為的Union是真的那麼簡單嗎？](#%e4%bd%a0%e4%bb%a5%e7%82%ba%e7%9a%84union%e6%98%af%e7%9c%9f%e7%9a%84%e9%82%a3%e9%ba%bc%e7%b0%a1%e5%96%ae%e5%97%8e)
+    - [Array.push() 是什麼，可以吃嗎？](#arraypush-%e6%98%af%e4%bb%80%e9%ba%bc%e5%8f%af%e4%bb%a5%e5%90%83%e5%97%8e)
+    - [Never跟陣列是朋友嗎？](#never%e8%b7%9f%e9%99%a3%e5%88%97%e6%98%af%e6%9c%8b%e5%8f%8b%e5%97%8e)
+    - [關於Type你又知道多少？](#%e9%97%9c%e6%96%bctype%e4%bd%a0%e5%8f%88%e7%9f%a5%e9%81%93%e5%a4%9a%e5%b0%91)
+  - [~~不~~常用的TS功能](#%e4%b8%8d%e5%b8%b8%e7%94%a8%e7%9a%84ts%e5%8a%9f%e8%83%bd)
+    - [keyof](#keyof)
+    - [Readonly](#readonly)
+    - [Partial](#partial)
+    - [Required](#required)
+    - [Pick](#pick)
+    - [Omit](#omit)
+    - [Generic](#generic)
+    - [Method Overload 重載函式](#method-overload-%e9%87%8d%e8%bc%89%e5%87%bd%e5%bc%8f)
+    - [待續](#%e5%be%85%e7%ba%8c)
+
+---
+
+
 ## Why TypeScript
 
-因應JavaScript的趨勢，包含目前三大框架 **（Angular, React, Vue）** 都漸漸開始使用在TypeScript（以下簡稱TS）撰寫他們的函式庫，簡單介紹一下常用的TS使用情境，相關使用方式可參考[官方網站](https://www.typescriptlang.org/samples/index.html)。 *本文部分使用TS3.0版本語法*
+因應JavaScript的趨勢，包含三大框架 **（Angular, React, Vue）** 漸漸開始使用在TypeScript（以下簡稱TS）撰寫他們的函式庫，這篇簡單介紹一下常用的TS使用情境，相關使用方式可參考[官方網站](https://www.typescriptlang.org/samples/index.html)。 *本文部分使用TS3.0版本以上的語法*
 
 
 ## 在TypeScript裡的型別: Type
@@ -121,7 +165,7 @@ let myGenericArry: Array<number> = [1, 2, 3]; //此方式跟myArray宣告方式�
 ```
 
 ### Object
-物件就是物件 (**~~詞窮~~**)，但通常這種定義物件的方式在TS是沒什麼~~屁~~用的，等等在說明 `interface` 時候或許會是更好定義物件的方式。物件型別代表任何不是原始型別`(Non-Primitive Type)`的類別，如 `number`、`string` 、`boolean` 等。相關原始型別請參考(https://medium.com/@jobboy0101/js%E5%9F%BA%E7%A4%8E-primitive-type-v-s-object-types-f88f7c16f225)。
+物件就是物件 (**~~詞窮~~**)，但通常這種定義物件的方式在TS是沒什麼~~屁~~用的，等等在說明 `interface` 時候或許會是更好定義物件的方式。物件型別代表任何不是原始型別`(Non-Primitive Type)`的類別，如 `number`、`string` 、`boolean` 等。相關原始型別請參考[這篇](https://medium.com/@jobboy0101/js%E5%9F%BA%E7%A4%8E-primitive-type-v-s-object-types-f88f7c16f225)。
 
 ```typescript
 function createUser(user: object): void {
@@ -163,7 +207,7 @@ const xyz: Point = [1, 2, 3];
 
 
 ### Never 
-`Never` - 從英文的來說很直接，就是 `永遠不會出現不會發生不會實踐` , 例如 Function 跳錯或無限迴圈，使用時機嘛...恩近乎0。
+`Never` - 從英文的來說很直接，就是 `永遠不會出現不會發生不會實踐` ， 例如 Function 跳錯或無限迴圈，使用時機嘛...恩近乎0。
 
 ```typescript
 function error (msg: string): never {
@@ -182,7 +226,7 @@ arrayAsNever.push((() => {throw new Error()})(), (() => {while(true){}})())
 ```
 
 ## Interfaces - DuckTyping鴨子在叫
-上述說明其實提到了很多次 `interfaces` 這詞，簡單來說就是為物件定義該有的屬性。以之前的 `createUser` 舉例:
+上述說明其實提到了很多次 `interfaces` 這詞，簡單來說就是為物件定義該有的屬性。以之前的 `createUser` 舉例：
 
 ```typescript
 function createUser(user: object): void {
@@ -190,7 +234,7 @@ function createUser(user: object): void {
 }
 ```
 
-目前 `createUser` 的型別是~~沒身份證的市民~~，但我們可以知道的是~~沒身份證的市民~~的參數必須是物件 `object`，但如果我們要給他適當的身份證，就必須對 `createUser` 的參數賦予某些固定的屬性，例如市民必有年齡，且年齡這變數必須要是數值: 
+目前 `createUser` 的型別是~~沒身份證的市民~~，但我們可以知道的是~~沒身份證的市民~~的參數必須是物件 `object`，但如果我們要給他適當的身份證，就必須對 `createUser` 的參數賦予某些固定的屬性，例如市民必有年齡，且年齡這變數必須要是數值：
 
 ```typescript
 function createUser(user: {age: number}): void {
@@ -202,7 +246,7 @@ createUser({name: 'alice', age: '18', gender: 'female'}); // NONO 你謊報年�
 createUser({name: 'adam', gender: 'male'}); // NONO 你不是女生不需要隱瞞年齡
 
 ```
-實際上參數有N個，但是我們只要確保age的屬性必須存在，且該型別必須要是數值。其他的都不太重要。~~但這個在TS 1.6版本後就強制需要將相對的欄位指定，不然就會報錯，不過先不管他~~，但若這個參數格式是需要被重複使用的時候，我們就可以把它獨立出來變成  `interface`:
+實際上參數有N個，但是我們只要確保age的屬性必須存在，且該型別必須要是數值。其他的都不太重要。~~但這個在TS 1.6版本後就強制需要將相對的欄位指定，不然就會報錯，不過先不管他~~，但若這個參數格式是需要被重複使用的時候，我們就可以把它獨立出來變成  `interface` ：
 
 ```typescript
 interface HumanBasic {
@@ -372,7 +416,7 @@ baseOnTypeAssertion = 'string'
     arrayAsExplicitType = []; // Empty array is allowed;
     ```
 
-5. 加了預設值就等同於`老婆出嫁後會一生媳婦這個稱號給綁死`一樣，再也沒有自由了...
+5. 加了預設值就等同於`老婆出嫁後會一生被‘媳婦’這稱號給綁死`一樣，再也沒有自由了...
 
     ```typescript
     let plainEmptyObject = {};
@@ -380,14 +424,13 @@ baseOnTypeAssertion = 'string'
 
     let plainEmptyObject2: object = {};
     plainEmptyObject2.a = 1; // Error property 'a' is not exist on type object
-
-    let plainEmptyObject3: object = {};
-    plainEmptyObject3.toString() // ALLOWED WHATTTT???
+    plainEmptyObject2 = {a: 1} // ALLOWED
+    plainEmptyObject2.toString() // ALLOWED WHATTTT???
 
     let plainEmptyObjectWithoutInitialize;
     plainEmptyObjectWithoutInitialize.a = 1; // ALLOWED
-    ```
-
+     ```
+  其實加上預設值在TS是個比較好的實踐方式，在初始化的過程中就決定變數可省去
 
 ### 你以為的Union是真的那麼簡單嗎？
 
@@ -400,14 +443,15 @@ baseOnTypeAssertion = 'string'
 2. 當遇見了陣列時，要設定單一型別值陣列時，你會這樣做：
 
     ```typescript
-    let arrayAsExplicitType: number[] = [1, 2];
+    let arrayAsExplicitType: number[] = [1, 2]; // GOOD
     ```
 
 3. 當遇見了陣列時，當你沒辦法確認資料型別是哪些時，你以為可以跟一般基本型別的設法一樣...
 
     ```typescript
     let arrayAsExplicitTypes: number[] | string[];
-    arrayAsExplicitTypes.push('0'); // Error : Argument of type '"0"' is not assignable to parameter of type 'number & string'.
+    arrayAsExplicitTypes.push('0'); 
+    // WHATT? Argument of type '"0"' is not assignable to parameter of type 'number & string'.
     ```
 
 4. 鄭傑正解呢？
@@ -447,7 +491,7 @@ arrayAsNever.push((() => {throw new Error()})(), (() => {while(true){}})()) // A
 type OnlyCSSPosition  = 'absolute' | 'fixed' | 'static' | 'relative'; 
 let myBoxPosition: OnlyCSSPosition = 'initial'; // Error as expected
 ```
-上面的type跟union沒什麼問題，就只是告訴你CSS position有這幾個屬性。~~幹你把`sticky`放到哪裡去了~~🐍🐍🐍🐍🐍？
+上面的 `type` 跟 `union` 沒什麼問題，只是想告訴你CSS position有這幾個屬性。~~幹你把`sticky`放到哪裡去了~~🐍🐍🐍🐍🐍？
 
 ```typescript
 interface MyObject {
@@ -466,7 +510,7 @@ multipleUnionObject = {a: 1, b: 2}; // ALLOWED
 multipleUnionObject = {b: 1}; // Error because it using MyObject as type but 'a' is missing
 multipleUnionObject = {a: 1}; // Error because it using MyObject2 as type but value 'a' should be a string
 ```
-使用union時候會有時空錯亂的感覺，但如果看仔細應該是不會太難懂，簡單來說就是 `有他沒我`！好啦你以為這樣就夠複雜了嗎？再複雜一點...
+使用 `union` 時會有時空錯亂的感覺，如果看仔細應該是不會太難懂，簡單來說就是 `有他沒我`！好啦你以為這樣就夠複雜了嗎？再複雜一點...
 
 ```typescript
 let objectWithInterfaceByTypeAssertion = <MultipleObject | {c: string}> multipleUnionObject
@@ -475,9 +519,8 @@ objectWithInterfaceByTypeAssertion = {c: '1'}; // ALLOWED
 objectWithInterfaceByTypeAssertion = {a: '1'}; // ALLOWED
 objectWithInterfaceByTypeAssertion = {a: 1, b: 2, c: '1'} // ALLOWED 
 ```
-這裡是將 `objectWithInterfaceByTypeAssertion` 變數利用TypeAssertion加了 c 這個屬性和原用上面的 `multipleUnionObject` 原有的型別。   
-單純只有c的時候是成立，但第三行我一開始真的也不太懂為何會成立，但他就是成立了🦁🦁。  
-好啦其實他這樣是對的，因為union的關係他是可以包含原有的 `MultipleObject` 有的型別 加上 c 這個屬性。
+這裡將 `objectWithInterfaceByTypeAssertion` 變數利用TypeAssertion，加了 `{c: string}` 屬性與原有的 `multipleUnionObject` 型別。   
+單純只有c的時候是成立，因為union的關係是可以包含原有的 `MultipleObject` 有的型別加上 c 這個屬性🦁🦁。
 
 
 ## ~~不~~常用的TS功能
@@ -536,7 +579,7 @@ let requiredFromUnrequiredObject = partialObject as Required<PartialType>
 requiredFromUnrequiredObject = {a: 1, b: '1'};
 requiredFromUnrequiredObject = {a: 2}; //Error because b is quired from partialObject 
 ```
-與partial剛好相反，把原本可選填的key變成必填。
+與 `partial` 剛好相反，把原本可選填的key變成必填。
 
 
 ### Pick
