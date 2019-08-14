@@ -21,13 +21,14 @@
   });
   ``` 
   用 `Object.defineProperty` 建立屬性的好處在於我們可以控制屬性的描述器（Descriptors）： `ACCESSOR` 和 `DATA` ，簡單來說一個是針對物件資料面一個是物件訪問面的一些設定，可參考MDN[文章](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)。這裡針對 `myObject` 增加了新屬性 `c`， 再用 `Accessor` 設定 `getter` 和 `setter` 的方式。  
+  ### setter是什麼？
   在還沒有 `proxy` 可用的年代，我們可以在setter做一個介入點，針對該屬性的改變而做某些事情，但這不是我要說的問題，我們再往下看看：
 
   ```javascript
   console.log(myObject.c) // undefined
   ```
 
-  此時印出來是 `undefined` 沒什麼問題，後來後悔了，希望將 `myObject` 給凍結不讓其他人或其他程式修改，我們可以用 `Object.freeze` 把它給封死。 *`Object.seal()` 跟 `Object.preventExtensions()` 也可以防止物件做封裝或擴增。*
+  此時印出來是 `undefined` 沒什麼問題，後來後悔了，希望將 `myObject` 給凍結不讓其他人或其他程式修改，我們可以用 `Object.freeze` 把它給封死。 *`Object.seal()` 跟 `Object.preventExtensions()` 也可以將物件做封裝或防止擴增屬性。*
 
   ```javascript
   Object.freeze(myObject);
