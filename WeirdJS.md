@@ -2,7 +2,7 @@
 
 把每天在寫Javascript遇到的怪問題都記錄下來，希望可以避免再犯。
 
-### **❄️❄️ `Object.freeze` ❄️❄️ 好像不凍結了... **
+### **❄️❄️ `Object.freeze` ❄️❄️ 好像不凍結了...**
   ```javascript
   let myObject = {
     a: 1,
