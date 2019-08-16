@@ -660,7 +660,7 @@ overloadFn({a: '1'}) // MyObject2
 
 ## TypeScript 常用的小技巧
 ### 利用泛型做雙重的認證
-TypeScript能夠讓我們變數值是否為所定義的型別，但如果今天是個物件的時候，可以利用泛型的便利性，針對不同的 `key` 對應相對的型別，如下例的例子：
+TypeScript能夠讓驗證變數值是否為所定義的型別，但如果今天是個物件的時候，可以利用泛型的便利性，針對不同的 `key` 對應相對的型別，如下例的例子：
 
 ```typescript
 interface IUser {
@@ -676,14 +676,16 @@ function setUserProperty(obj, key, value) {
 }
 ```
 
-上述的例子中，我們定義了一個能夠針對現有的 `user` 去改變他的 `key` 和 `value`。這函式要怎麼透過TS去驗證帶入的值是正確的呢？~~<small>我們先不討論這函式到底純不純，雖然在pure function概念裡這種寫法的確會延伸出一些問題，但是透過ts我們可以稍微減緩對變數造成的side effect。</small>~~
+上述的例子中，我們定義了一個函式 `setUserProperty` , 他能夠針對現有的 `user` 去改變他的 `key` 和 `value`。 `setUserProperty` 要怎麼透過TS去驗證帶入的值是正確的呢？
+
+> ~~<small>我們先不討論這函式到底純不純，雖然在pure function概念裡這種寫法的確會延伸出一些問題，但是透過ts我們可以稍微減緩對變數造成的side effect。</small>~~
 
 ```typescript 
 function setUserProperty(obj: IUser, key: string, value: any): void {
   obj[key] = value;
 }
 ```
-我們可以透過上述的設定，讓函式的參數對應的型別，但這會有個問題:
+我們可以透過上述的設定，讓函式的參數對應的型別，但這會有個問題：
 ```typescript
 setUserProperty(user, 'name', 'kangw3n'); // 不會報錯
 setUserProperty(user, age, false); // 不會報錯 - 但其實是錯誤的，因為age要是number才對
@@ -713,9 +715,9 @@ function setUserProperty<
 setUserProperty(user1, 'name', 1); // Argument of type '1' is not assignable to parameter of type 'string'.
 setUserProperty(user1, 'name', 'string'); // correct
 setUserProperty(user1, 'age', 1); // correct
-setUserProperty(user1, 'isMarried', 1); // Argument of type '"isMarried"' is not assignable to parameter of type '"name" | "age" | "gender" | "isMarried"'.ts(2345)
+setUserProperty(user1, 'isMarried', 1); // Argument of type '"isMarried"' is not assignable to parameter of type '"name" | "age" | "gender" |.
 ```
-這種寫法也可以防止帶入的不存在 `IUser` 的 `key` ，例如上述例子帶入了 `isMarried` key 就會報錯。
+這寫法也可以防止帶入不存在於 `IUser` 的 `key` ，例如上述例子帶入了 `isMarried` key 就會報錯。
 
 #### 討厭的 `sideeffect`
 
