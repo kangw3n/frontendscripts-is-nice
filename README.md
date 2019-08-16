@@ -39,7 +39,9 @@
     - [Omit](#omit)
     - [Generic](#generic)
     - [Method Overload 重載函式](#method-overload-%e9%87%8d%e8%bc%89%e5%87%bd%e5%bc%8f)
-    - [待續](#%e5%be%85%e7%ba%8c)
+  - [TypeScript 常用的小技巧](#typescript-%e5%b8%b8%e7%94%a8%e7%9a%84%e5%b0%8f%e6%8a%80%e5%b7%a7)
+    - [利用泛型做雙重的認證](#%e5%88%a9%e7%94%a8%e6%b3%9b%e5%9e%8b%e5%81%9a%e9%9b%99%e9%87%8d%e7%9a%84%e8%aa%8d%e8%ad%89)
+      - [討厭的 `sideeffect`](#%e8%a8%8e%e5%8e%ad%e7%9a%84-sideeffect)
 
 ---
 
@@ -62,7 +64,7 @@ let declareByType: UnionType; // 使用Type宣告
 let initialType: number | string = 1; //宣告一個String || Number 變數
 let baseOnTypeAssertion = <number> initialType // TypeAssertion的變數決定
 
-interface MyObject {a: string}
+interface MyObject {a: string;}
 let declareByInterface: MyObject = {a: 1};
 
 // ...還有很多後續會帶，但最常用的為 declareType這類型，
@@ -250,7 +252,7 @@ createUser({name: 'adam', gender: 'male'}); // NONO 你不是女生不需要隱�
 
 ```typescript
 interface HumanBasic {
-  age: number
+  age: number;
 }
 
 function createUser(user: HumanBasic): void {
@@ -360,7 +362,7 @@ interface HumanBasic {
 }
 
 interface CreateUserFn {
-  (user: HumanBasic, isAdmin: boolean): void
+  (user: HumanBasic, isAdmin: boolean): void;
 }
 
 let createUser: CreateUserFn; 
@@ -495,12 +497,12 @@ let myBoxPosition: OnlyCSSPosition = 'initial'; // Error as expected
 
 ```typescript
 interface MyObject {
-  a: number
-  b: number
+  a: number;
+  b: number;
 }
 
 interface MyObject2 {
-  a?: string
+  a?: string;
 }
 
 type MultipleObject = MyObject | MyObject2; //這裡看起來好像蠻簡單的
@@ -531,8 +533,8 @@ objectWithInterfaceByTypeAssertion = {a: 1, b: 2, c: '1'} // ALLOWED
 
 ```typescript
 interface MyObject {
-  a: number
-  b: number
+  a: number;
+  b: number;
 }
 
 type ObjectKeyOnly = keyof MyObject;
@@ -631,12 +633,12 @@ let getIdentity: GenericIdentity = (arg) => arg;
 
 ```typescript 
 interface MyObject {
-    a: number
-    b: number
+    a: number;
+    b: number;
 }
 
 interface MyObject2 {
-    a?: string
+    a?: string;
 }
 
 
@@ -656,4 +658,88 @@ overloadFn({a: '1'}) // MyObject2
 如果仔細看，最後一個fn才是執行context，上面幾個都是宣告此函式可能的格式，讓函式的彈性更大，但可惜的部分是，最後一個fn則需要多做判斷，與其他真正擁有重載函式 `overloaded function` 的語言還是有差別。
 
 
-### 待續
+## TypeScript 常用的小技巧
+### 利用泛型做雙重的認證
+TypeScript能夠讓我們變數值是否為所定義的型別，但如果今天是個物件的時候，可以利用泛型的便利性，針對不同的 `key` 對應相對的型別，如下例的例子：
+
+```typescript
+interface IUser {
+  name: string;
+  age: number;
+  gender: string;
+}
+
+let user: IUser;
+
+function setUserProperty(obj, key, value) {
+  obj[key] = value;
+}
+```
+
+上述的例子中，我們定義了一個能夠針對現有的 `user` 去改變他的 `key` 和 `value`。這函式要怎麼透過TS去驗證帶入的值是正確的呢？~~<small>我們先不討論這函式到底純不純，雖然在pure function概念裡這種寫法的確會延伸出一些問題，但是透過ts我們可以稍微減緩對變數造成的side effect。</small>~~
+
+```typescript 
+function setUserProperty(obj: IUser, key: string, value: any): void {
+  obj[key] = value;
+}
+```
+我們可以透過上述的設定，讓函式的參數對應的型別，但這會有個問題:
+```typescript
+setUserProperty(user, 'name', 'kangw3n'); // 不會報錯
+setUserProperty(user, age, false); // 不會報錯 - 但其實是錯誤的，因為age要是number才對
+```
+因為我們在value的參數設了 `any` 的型別，`IUser` 值只有 `string` 和 `number`，我們可以改成下例的做法：
+```typescript
+function setUserProperty(obj: IUser, key: string, value: string | number ): void {
+  obj[key] = value;
+}
+
+setUserProperty(user, 'name', false); // Argument of type 'false' is not assignable to parameter of type 'string | number'
+```
+用 `union` 我們可以明確的定義值只有 `string` 或 `number` ，但這樣其實還不夠，假設我們提供 `name` 的值是 `number` TS 依然不會報錯
+```typescript 
+setUserProperty(user, 'name', 1); // correct
+```
+在這裡我們可以利用泛型的便利性，透過 `keyof` 抓取key對應的值該有的型別：
+```typescript
+function setUserProperty<
+  T extends keyof IUser
+>(obj: IUser, key: T, value: IUser[T]): void {
+  obj[key] = value;
+}
+```
+這裡的 `T` 代表了 `IUser` 的 `key` 當成動態值， 當參數 `key` 被帶入 `name` 時，這時候參數 `value` 的值必須對應 `name` 的型別，也就是 `string`。 這就是泛型厲害的地方：
+```typescript
+setUserProperty(user1, 'name', 1); // Argument of type '1' is not assignable to parameter of type 'string'.
+setUserProperty(user1, 'name', 'string'); // correct
+setUserProperty(user1, 'age', 1); // correct
+setUserProperty(user1, 'isMarried', 1); // Argument of type '"isMarried"' is not assignable to parameter of type '"name" | "age" | "gender" | "isMarried"'.ts(2345)
+```
+這種寫法也可以防止帶入的不存在 `IUser` 的 `key` ，例如上述例子帶入了 `isMarried` key 就會報錯。
+
+#### 討厭的 `sideeffect`
+
+針對剛剛說的 `side effect` 問題，稍微改變一下寫法也可以：
+
+```typescript
+interface IUser {
+  name: string;
+  age: number;
+  gender: string;
+  isMarried: boolean;
+}
+
+declare function createUser() : IUser;
+let user = createUser();
+
+function setUserProperty<
+ T extends keyof IUser
+>(user: IUser, key: T, value: IUser[T]): IUser {
+  return {
+    ...user,
+    [key]: value
+  }
+}
+
+user = setUserProperty(user, 'name', 'string'); // no side effect
+```
