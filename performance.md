@@ -155,3 +155,42 @@ GC機制是一個非常複雜且龐大的議題，每個瀏覽器引擎擁有自
 但JavaScript有事件執行緒的機制，也就是在某個時間點呼叫了什麼函式，而這函式是需要呼叫多個函式做堆疊的動作，他們就會有先後順序的問題，這時候就函式本身就會組成 `stack` 。想要更了解JavaScript的執行緒可以參考 MDN 的 [Event Loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop) 文章或是 Philip Roberts 在2014年 JSConf的Event Loop[演講](https://www.youtube.com/watch?v=8aGhZQkoFbQ)。
 
 > Event Loop內提到的 `heap` 跟 `stack` 與JavaScript是否使用哪種記憶體存取資料或許沒有直接關係。
+
+
+
+### 記憶體洩漏 Memory Leak in JavaScript
+接下來我們來探討看在JavaScript裡面會發生的記憶體洩漏問題。什麼是記憶體洩漏，就是當你的瀏覽器非常當的時候大概有87%都是記憶體洩漏導致的。沒在用的變數但卻被存取沒辦法被回收，通常都是因為某些撰寫JavaScript的壞習慣：
+
+1. 全域變數：依據剛剛GC中探討的，當我們不小把變數值賦予 `window` 根目錄下，除非你將它設成 `null`，不然這值永遠都不會被回收。但有時候會因為沒注意而不小心設成全域變數：
+
+    ```javascript 
+    function setLocalState(data) {
+      state = data;
+    }
+    ```
+    這裡的 `state` 就不小變成了 `window.state` 了，在JavaScript也有個小技巧就是設定 `use-strict;` 可防止不小心污染全域變數裡的值。
+
+    另外還有跟 `this` 執行區域 `context` 有關，如：
+    ```javascript 
+    function setLocalState(data) {
+      this.state = data;
+    }
+    setLocalState('global'); // window.state = 'global';
+
+    const a = {
+      state: null,
+      setLocalState: setLocalState
+    }
+    a.setLocalState('local'); // window.state = undefined;
+    ```
+    所以在使用 `this` 時候要小心執行的區域，全域變數不會被回收，除非重新賦予該值或改成 `null`，才能準確的回收不必要的物件。
+    ```javascript
+    window.state = null;
+    ```
+
+2. Clousure
+3. 移除DOM後的物件變數存取
+4. setInterval
+5. RemoveEventListener / Subject - Component Based
+
+//TODO
