@@ -4,7 +4,7 @@
 
 - [JavaScript](javascript.md) 
 - [TypeScript](typescript.md)
-- [奇怪的JavaScript](Weird.md)
+- [奇怪的JavaScript](WeirdJS.md)
 - [Performance 效能面](performance.md)
 - [VueJs](vue.md)
 - [Angular - TODO](angular.md)
