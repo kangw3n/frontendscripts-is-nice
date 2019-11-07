@@ -253,3 +253,264 @@ console.log(weakMap) // WeakMap {{…} => "value2", {…} => "value1"}
 console.log(weakMap.get(nestedObject1)); // value1
 ```
 ---
+
+## 實在很奇怪，`var` 母仔它到底在幹嘛
+
+新手學JavaScript的前幾個課題應該逃不了提升 `hoisting`，這也是很抽象但卻又不能不懂的JavaScript ~~特別~~功能之一。
+
+來，第一課：
+
+```javascript
+console.log(a); // what is this?
+```
+
+結果是 `Uncaught ReferenceError: a is not defined`。廢話！都沒跟他說 a 是啥東西。
+
+好我宣告：
+
+```javascript
+var a; 
+console.log(a); // what is this?
+```
+
+結果應該很明確是 `undefined` ，變數被宣告了但卻沒有任何值。
+
+來搬家一下：
+
+```javascript
+console.log(a); // what is this?
+var a; 
+```
+
+咦，搬一下位置後，結果卻是 `undefined` ，為什麼 a 在還沒宣告前log居然是空值？難道他是預言家知道下一行是什麼嗎？
+
+那我先給值總可以了吧：
+```javascript
+console.log(a); // what is this?
+var a = 1; 
+```
+
+結果依然是 `undefined`， 'WTF!!'    
+其實這就是大家俗稱的 hoisting 也是奇怪的部分，那這章節就結束了...(wei...)
+
+好啦，上面的大概就是大家了解的 `var` 怪怪的地方。所以現在很多人都建議直接用 `let` 和 `const` 就是要防止提升的問題，因為：
+
+```javascript 
+var a = 1;
+var a = 2;
+var a = 3;
+```
+
+不管新增幾個都不會報錯，所以你在第1行新增的 `a` 有可能會被第124行的 `a` 給覆蓋。
+
+> 當然在 'use strict' 下是會報錯的
+
+因為有了這特性，所以今天函式也可以用相同的名字，也不會跟你報錯。
+```javascript 
+function a(){}
+var a = 1;
+```
+
+他們可以並存，但有趣的是：
+
+```javascript 
+function a(){}
+var a = 1;
+console.log(a); // what is this?
+```
+
+這時候的 `a` 會是誰呢？ 如果你說 `a` 那你就對啦。如果調一下位置呢？
+
+```javascript 
+var a = 1;
+function a(){}
+console.log(a); // what is this?
+var b = 3;
+var c;
+```
+
+這時候有人會說應該是函式 `a` 吧？因為他在比較後面，對不起你錯了，結果還是 `1`， 原因一樣跟提升有關，分解圖大概可以透過這樣的方式解釋。
+
+```javascript 
+var a // 1. 提升 a
+var b // 2. 提升 b
+var c // 3. 提升 c
+//...不管在哪裡宣告，只要被提升上來，var宣告的都會在最上方，直到沒有被var宣告為止。
+function a(){} // 4. 宣告 a 函式
+
+a = 1; // 5. 將 1 賦予 a
+
+console.log(a); // 1
+```
+
+以上的兩個案例，基本上跟上面的分解圖是一樣的，就算順序上有差，var宣告的都會被推上去，再來調整一下 log 的順序：
+
+```javascript 
+console.log(a); // what is this?
+var a = 1;
+function a(){}
+```
+
+這時候你可能會覺得，啊！應該是 `undefined` ! 因為 `a` 會先提升到上面。  
+如果你這樣認為的，那你又錯了，解析圖如下：
+
+```javascript
+
+var a; // 1. 提升這裡沒問題
+function a(){} // 2. 函式 function declaration 接在提升的後面
+console.log(a); // 3. 這時候的 log a 會是函式本身
+a = 1; // 4. 這時候才把 1 賦予 a
+```
+
+有趣吧，所以上述的code，在後續印 `a` 會是 1 而不是函式本身。   
+再來個加分題：
+```javascript 
+console.log(a()); // what is this?
+var a;
+function a(){console.log(a)}
+var a = 5;
+```
+這時候 第一個 a 會是什麼呢？如果你猜的是 `undefined` 的話，那你就對了，因為根據之前的拆解步驟，`a` 會在被呼叫的時候 是 undefined 但是後續呼叫會是 `5`。
+
+拆解圖：
+```javascript 
+var a; // 1. 提升這裡沒問題
+function a(){console.log(a)} // 2. 函式 function declaration 接在提升的後面
+console.log(a()); // 3. 呼叫目前 a 的值，目前沒有任何值，所以它會是 'undefined'
+a = 5; // 4. 此時把 5 賦予了 a
+```
+
+其實到這裡就寫完了，提升這個特性也不是JavaScript奇怪的部分，但是每次在回想起來的時候都覺得它具有滿滿的陷阱，所以以後還是不要用 `var` 會比較好。
+
+> 騙了一個篇幅來寫不是 weird js 的 js，再見
+
+其實還沒結束啦，說到 hoisting就必須了來點 weird part啊，畢竟這些列是 weird 奇怪的奇怪：
+
+```javascript 
+for (var i = 0; i < 3; i++ ){
+  console.log(i); // what is this?
+}
+console.log(i);
+```
+這題應該蠻簡單的，答案就是順序的 `0, 1, 2`，然後因為用 `var` 宣告的關係，第二個log因被提升到上一層而變成`3`，分解圖：
+
+```javascript 
+var i; // 1. 提升這裡沒問題 
+
+{
+  i = 0; 
+  console.log(i); // 2. 目前是 0
+  i = i++; //3. for 裡面對這個i 進行了 ++ 的操作
+  (i < 3) ? break : continue;
+} 
+{
+  console.log(i); // 4. 目前是 1
+  i = i++; //5. for 裡面對這個i 進行了 ++ 的操作
+  (i < 3) ? break : continue;
+} 
+{
+  console.log(i);  // 6. 目前是 2
+  i = i++; //7. for 裡面對這個i 進行了 ++ 的操作
+  (i < 3) ? break : continue; // 8. break 觸發
+} 
+
+// 9. 此時全域的i 已經被加了3次，所以 i 目前是 3
+```
+
+所以我們在處理for的時候，會希望用let來處理，避免污染上層的變數：
+```javascript 
+for (let i = 0; i < 3; i++ ){}
+console.log(i); //  i is not defined
+```
+
+用`var`會被hoisted，我們如果這樣做呢？
+```javascript 
+for (var i = 0; i < 3; i++ ){
+  console.log(i);
+  let i = 3;
+}
+```
+
+猜猜看會有什麼反應，其實此時 `var` 跟 `let` 宣告的 i 已經不是同一個了，而因為進入到for 範疇裡形成了 block scope，所以結果會是 `Cannot access 'i' before initialization`。 分解圖：
+
+```javascript 
+var i; // 1. 提升這裡沒問題 
+
+{
+  i = 0; // 2. 設定 var 定義的 i 為 0
+  console.log(i); // 3. javascript 引擎開始尋找 block scope的i，發現 i 下面，直接噴錯！
+  let i = 3;  // 5. 這段不會執行
+  i++; // 6. 這段不會執行
+} 
+// 7. 後續loop不會執行
+```
+
+所以這裡很有趣的是，block scope裡若有 let 宣告，就會停止運算報錯，但global i 卻被污染了。若 block scope 裡的 `let` 改成 `var` 又會有不同的結果。
+
+```javascript 
+for (var i = 0; i < 3; i++ ){
+  console.log(i);
+  var i = 3;
+}
+```
+
+這裡的答案就很明確，因為hoisting的關係，i 在第一個loop就被修改成3，所以執行一次的迴圈。
+
+所以都使用 `let` 就可以避免類似奇怪的問題嗎？ 未必...
+
+```javascript 
+for (let i = 0; i < 3; i++ ){
+  let i = 3;
+  console.log(i); // how many times to be executed
+}
+```
+
+這裡會有兩個問題，第一個問題是 i 會執行幾次， 二是 i 會印出什麼？
+
+答案是：執行 3 次且都印 3 ...
+
+> WTF??!!
+
+第一次看這個案例的時候我是滿頭問號，for 裡面彷彿有兩層block scope，一個是 loop scope （也就是迴圈執行次數的範疇），一個就是 block scope （迴圈執行內的範疇）。
+
+我自己是不知道有沒有官方的對於這樣的說法，但至少從我看來，我覺得他是蠻奇怪的，如果使用 `let` 會避免提升的問題，那在這迴圈中宣告同樣的變數名稱應該要噴錯才對...
+
+我自己理解的解構圖(不知道是否真的對或錯)：
+
+```javascript 
+// for start (在執行迴圈的第一次時)
+{
+  let i = 0; //(loop scope i) 1. loop scope 下的 i 為 0
+} 
+{
+  //(執行第一次)
+  let i = 3; // (block scope i) 2. block scope 下的i 為 3
+  console.log(i); // 3. 印 3
+}
+{
+  i = i++; //  (loop scope i) 4. 第一迴圈結束，把 loopscope i + 1;
+  (i < 3) ? break : continue; 
+}
+{
+  //(執行第二次)
+  let i = 3; // (block scope i) 5. block scope 下的i 為 3
+  console.log(i); // 6. 印 3
+}
+{
+  i = i++; //  (loop scope i) 7. 第二迴圈結束，把 loopscope i + 1;
+  (i < 3) ? break : continue; 
+}
+{
+  //(執行第三次)
+  let i = 3; // (block scope i) 8. block scope 下的i 為 3
+  console.log(i); // 9. 印 3
+}
+{
+  i = i++; //  (loop scope i) 10. 第三迴圈結束，把 loopscope i + 1;
+  (i < 3) ? break : continue; // 11. break 邏輯觸發
+}
+```
+
+看到這裡我只能說，不太懂JavaScript的運作邏輯，雖然這樣的設計可能有一個合理的解釋，但我還是覺得，與其設計的那麼複雜，不然就好好提供一個不錯的spec讓大家可以仔細的閱讀即可，不然太多的狀況下，其實要寫出一個沒有蟲蟲的JavaScript還真的滿難的。
+
+如果有大大了解或認為我在解說上有些錯誤的部分，歡迎大家提出自己的意見...
