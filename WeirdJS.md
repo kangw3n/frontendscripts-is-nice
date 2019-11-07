@@ -282,7 +282,7 @@ console.log(a); // what is this?
 var a; 
 ```
 
-咦，搬一下位置後，結果卻是 `undefined` ，為什麼 a 在還沒宣告前log居然是空值？難道他是預言家知道下一行是什麼嗎？
+咦，搬一下位置後，結果卻是 `undefined` ，為什麼 `a` 在還沒宣告前log居然是空值？難道他是預言家知道下一行是什麼嗎？
 
 那我先給值總可以了吧：
 ```javascript
@@ -343,7 +343,7 @@ a = 1; // 5. 將 1 賦予 a
 console.log(a); // 1
 ```
 
-以上的兩個案例，基本上跟上面的分解圖是一樣的，就算順序上有差，var宣告的都會被推上去，再來調整一下 log 的順序：
+以上的兩個案例，基本上跟上面的分解圖是一樣的，就算順序上有差，`var` 宣告的都會被推上去，再來調整一下 log 的順序：
 
 ```javascript 
 console.log(a); // what is this?
@@ -362,7 +362,7 @@ console.log(a); // 3. 這時候的 log a 會是函式本身
 a = 1; // 4. 這時候才把 1 賦予 a
 ```
 
-有趣吧，所以上述的code，在後續印 `a` 會是 1 而不是函式本身。   
+有趣吧，所以上述的code，在後續印 `a` 會是 `1` 而不是函式本身。   
 再來個加分題：
 ```javascript 
 console.log(a()); // what is this?
@@ -370,7 +370,7 @@ var a;
 function a(){console.log(a)}
 var a = 5;
 ```
-這時候 第一個 a 會是什麼呢？如果你猜的是 `undefined` 的話，那你就對了，因為根據之前的拆解步驟，`a` 會在被呼叫的時候 是 undefined 但是後續呼叫會是 `5`。
+這時候 第一個 `a` 會是什麼呢？如果你猜的是 `undefined` 的話，那你就對了，因為根據之前的拆解步驟，`a` 會在被呼叫的時候 是 undefined 但是後續呼叫會是 `5`。
 
 拆解圖：
 ```javascript 
@@ -417,13 +417,13 @@ var i; // 1. 提升這裡沒問題
 // 9. 此時全域的i 已經被加了3次，所以 i 目前是 3
 ```
 
-所以我們在處理for的時候，會希望用let來處理，避免污染上層的變數：
+所以我們在處理for的時候，會希望用 `let` 來處理，避免污染上層的變數：
 ```javascript 
 for (let i = 0; i < 3; i++ ){}
 console.log(i); //  i is not defined
 ```
 
-用`var`會被hoisted，我們如果這樣做呢？
+若用`var`會被 hoisted，那如果這樣做呢？
 ```javascript 
 for (var i = 0; i < 3; i++ ){
   console.log(i);
@@ -431,7 +431,7 @@ for (var i = 0; i < 3; i++ ){
 }
 ```
 
-猜猜看會有什麼反應，其實此時 `var` 跟 `let` 宣告的 i 已經不是同一個了，而因為進入到for 範疇裡形成了 block scope，所以結果會是 `Cannot access 'i' before initialization`。 分解圖：
+猜猜看會有什麼反應，其實此時 `var` 跟 `let` 宣告的 `i` 已經不是同一個了，而因為進入到 for 範疇裡形成了 block scope，所以結果會是 `Cannot access 'i' before initialization`。 分解圖：
 
 ```javascript 
 var i; // 1. 提升這裡沒問題 
@@ -443,18 +443,20 @@ var i; // 1. 提升這裡沒問題
   i++; // 6. 這段不會執行
 } 
 // 7. 後續loop不會執行
+
+// window.i = 0
 ```
 
-所以這裡很有趣的是，block scope裡若有 let 宣告，就會停止運算報錯，但global i 卻被污染了。若 block scope 裡的 `let` 改成 `var` 又會有不同的結果。
+所以這裡很有趣的是，block scope裡若有 `let` 宣告，就會停止運算報錯，但global  `i` 卻被污染了。若 block scope 裡的 `let` 改成 `var` 又會有不同的結果。
 
 ```javascript 
 for (var i = 0; i < 3; i++ ){
-  console.log(i);
+  console.log(i); // what is this?
   var i = 3;
 }
 ```
 
-這裡的答案就很明確，因為hoisting的關係，i 在第一個loop就被修改成3，所以執行一次的迴圈。
+這裡的答案就很明確，因為hoisting的關係，`i` 在第一個loop就被修改成 `3`，所以只執行一次的迴圈，結果會是 `0`。
 
 所以都使用 `let` 就可以避免類似奇怪的問題嗎？ 未必...
 
@@ -465,9 +467,11 @@ for (let i = 0; i < 3; i++ ){
 }
 ```
 
-這裡會有兩個問題，第一個問題是 i 會執行幾次， 二是 i 會印出什麼？
+這裡會有兩個問題，   
+第一個問題是 `i` 會執行幾次？  
+第一個問題是 `i` 會印出什麼？
 
-答案是：執行 3 次且都印 3 ...
+答案是：執行 `3` 次且都印 `3` ...
 
 > WTF??!!
 
