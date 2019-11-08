@@ -2,6 +2,7 @@
 
 因JavaScript的弱型別的關係，所以延伸出非常多的概念，例如Prototype Inheritance，First Class Function, Functional JavaScript等，這裡我先把自己了解的幾個觀念先記錄下來，希望能夠以淺寫易懂的概念讓大家知道。
 
+---
 ## 你可能不知道的Scope
 剛踏入JavaScript時候，對變數的宣告範疇 (Declaration Scope) 都會有些模糊，尤其是當 `hoisting` 的概念被啟動的時候，會讓變數的生命週期變得無法捉摸。
 
@@ -89,7 +90,7 @@ function myFn() {console.log('log from myFn')}
 console.log(myOtherFn); // undefined 因hoisting產生了
 var myOtherFn = function() {console.log('log from myOtherFn')}
 
-console.log(myNiceFn()); // myOtherFn is not a function  這時候myNiceFn還是undefined
+console.log(myNiceFn()); // myNiceFn is not a function  這時候myNiceFn還是undefined
 var myNiceFn = function() {console.log('log from myNiceFn')}
 ```
 上述的例子中也是初學者最懊惱的部分，第一個例子用了 `Function Declaration` 宣告而第二個用了 `Function Expressions`宣告則有不同的結果。
@@ -110,7 +111,7 @@ WHY？依前兩個例子，為何在block scope中這個Fn 不會變成global呢
 
 逗點在JavaScript裡是做評估 `evaluate` 的動作，也就是把左邊開始的statement做評估，所以將逗點改成 `;` 分號即得到正常的結果。
 
-> 這就是我們在宣告變數的時候盡量避免用逗點做區隔的原因，因為他不會給你任何的錯誤
+> 💡 這就是我們在宣告變數的時候盡量避免用逗點做區隔的原因，因為他不會給你任何的錯誤
 > 
 > 但值得一提的是，`one` 前面加了宣告變數後就會報錯了 （var one = 4, function....）
 
@@ -140,13 +141,13 @@ console.log(one, otherFn());  // one, otherFn is not defined;
 ```
 
 
-> block scope 在使用 `var` 宣告下是不會保護自己的變數... kind of....
+> ⌛ block scope 在使用 `var` 宣告下是不會保護自己的變數... kind of....
 
-> `try{}catch(){}` 和 `with` 是例外嗎... kind of....
+> ⌚ `try{}catch(){}` 和 `with` 是例外嗎... kind of....
 
 ### 3. with 也沒那麼例外... 當你用 `var` 的時候什麼都會發生
 
-`with` 是JavaScript非常古老的無法，現在應該也沒人再用而且也沒意義。相關使用方式可參考: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/with 
+`with` 是JavaScript非常古老的語法，現在應該也沒人再使用它。相關使用方式可參考: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/with 
 
 他基本上有點像函式的範疇： 
 
@@ -219,7 +220,7 @@ with({two, three, five} = self) {
 
 這時候我們把global物件結構出來，猜猜看執行會有是什麼？ 答案是... ` Assignment to constant variable.` 錯誤。
 
-從 `self` 結構出來的值，要賦予two本身的值居然不被允許，這也太奇葩了吧？
+從 `self` 結構出來的值，要賦予two本身的值居然不被允許，這也太奇葩了吧 🤷‍♂️？
 
 ### 4. 來點潮的 `type="module"`
 
@@ -239,7 +240,7 @@ with({two, three, five} = self) {
 </script>
 ```
 
-上面的例子中跟第一個例子是一樣的，但如果把它改成兩個都是 `module` 的時候就會有不一樣的結果。
+上面的例子中跟前面的例子是一樣的，但如果把它改成兩個都是 `module` 的時候就會有不一樣的結果。
 
 ```html
 <script type="module">
@@ -265,13 +266,13 @@ with({two, three, five} = self) {
 
 ```
 
-> 總的來說：`module` 會將自己的範疇封閉起來，其他的地方即無法取得。
+> 💡 總的來說：`module` 會將自己的範疇封閉起來，其他的地方即無法取得。
 
 所以在scoping的議題中，其實有很多非常雕磚的小蟲蟲，即使寫了很久的工程師也未必能夠第一時間解析目前的範疇是什麼，需要了解他們之間的關係是什麼，使用的變數宣告方式等，所以說 
 
-> 工程師不是人幹的...
+> 🤦‍♂️ 工程師不是人幹的...
 
-
+---
 
 
 
